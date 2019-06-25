@@ -15,6 +15,7 @@
             "elm-community/maybe-extra": "5.0.0",
             "elm-community/random-extra": "3.1.0",
             "isaacseymour/deprecated-time": "1.0.0",
+            "miniBill/elm-codec": "1.1.0",
             "the-sett/elm-serverless": "1.0.0",
             "the-sett/lazy-list": "1.1.1"
         },
