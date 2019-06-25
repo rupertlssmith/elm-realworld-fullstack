@@ -1,12 +1,14 @@
 port module RealWorld.API exposing (main)
 
 import Array exposing (Array)
+import Codec
 import Json.Decode as Decode exposing (Decoder)
 import Json.Encode as Encode
 import Model
 import Serverless
-import Serverless.Conn exposing (jsonBody, method, respond, route, textBody)
-import Serverless.Conn.Request exposing (Method(..), Request)
+import Serverless.Conn exposing (jsonBody, method, request, respond, route, textBody)
+import Serverless.Conn.Request exposing (Method(..), Request, asJson, body)
+import Url
 import Url.Parser exposing ((</>), int, map, oneOf, s, top)
 
 
@@ -17,7 +19,7 @@ port responsePort : Serverless.ResponsePort msg
 
 
 type Route
-    = Hello
+    = NewUser
 
 
 type alias Conn =
@@ -33,21 +35,40 @@ main =
     Serverless.httpApi
         { configDecoder = Serverless.noConfig
         , initialModel = ()
-        , parseRoute =
-            oneOf
-                [ map Hello (s "hello")
-                ]
-                |> Url.Parser.parse
-        , endpoint = endpoint
+        , parseRoute = routeParser
+        , endpoint = router
         , update = update
         , requestPort = requestPort
         , responsePort = responsePort
         }
 
 
-endpoint : Conn -> ( Conn, Cmd Msg )
-endpoint conn =
-    respond ( 200, textBody "Hello Elm on AWS Lambda" ) conn
+routeParser : Url.Url -> Maybe Route
+routeParser =
+    oneOf
+        [ map NewUser (s "users")
+        ]
+        |> Url.Parser.parse
+
+
+router : Conn -> ( Conn, Cmd Msg )
+router conn =
+    let
+        decodeResult val =
+            Codec.decodeValue Model.newUserRequestCodec val |> Result.mapError Decode.errorToString
+
+        result =
+            conn |> request |> body |> asJson |> Result.andThen decodeResult
+    in
+    case ( method conn, route conn, result ) of
+        ( POST, NewUser, Ok user ) ->
+            respond ( 200, textBody "New User Created" ) conn
+
+        ( _, _, Ok _ ) ->
+            respond ( 405, textBody "Method not allowed" ) conn
+
+        ( _, _, Err errMsg ) ->
+            respond ( 422, textBody errMsg ) conn
 
 
 update : Msg -> Conn -> ( Conn, Cmd Msg )
