@@ -1,4 +1,4 @@
-service: numelm-spike-api
+service: realworld-api
 
 provider:
   name: aws
@@ -15,8 +15,8 @@ custom:
     dontPrintOutput: true
 
 functions:
-  health:
-    handler: src/Health/api.handler
+  realworld:
+    handler: src/RealWorld/api.handler
     events:
       - http:
           integration: lambda-proxy
@@ -25,16 +25,4 @@ functions:
       - http:
           integration: lambda-proxy
           path: /health/{proxy+}
-          method: ANY
-
-  revenue:
-    handler: src/Revenue/api.handler
-    events:
-      - http:
-          integration: lambda-proxy
-          path: /revenue/
-          method: ANY
-      - http:
-          integration: lambda-proxy
-          path: /revenue/{proxy+}
           method: ANY
