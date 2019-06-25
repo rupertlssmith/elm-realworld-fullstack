@@ -5,7 +5,9 @@
   "author": "Rupert Smith",
   "private": true,
   "scripts": {
-    "deploy": "gulp deploy"
+    "deploy": "gulp deploy",
+    "test": "gulp offline && npm run test:api",
+    "test:api": "newman"
   },
   "dependencies": {
     "@the-sett/serverless-elm-bridge": "^1.0.0",
@@ -28,6 +30,7 @@
     "gulp-rimraf": "^0.2.1",
     "gulp-util": "^3.0.8",
     "inquirer": "^3.3.0",
+    "newman": "^4.5.1",
     "serverless": "^1.45.1",
     "serverless-offline": "^3.16.0",
     "serverless-webpack": "^4.1.0",
