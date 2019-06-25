@@ -20,9 +20,9 @@ functions:
     events:
       - http:
           integration: lambda-proxy
-          path: /realworld/
+          path: /api/
           method: ANY
       - http:
           integration: lambda-proxy
-          path: /realworld/{proxy+}
+          path: /api/{proxy+}
           method: ANY
