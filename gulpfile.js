@@ -37,6 +37,13 @@ gulp.task('offline_api_stack', function() {
     }))
 });
 
+gulp.task('delete_offline_api_stack', function() {
+  return gulp.src('./api/lambda/gulpfile.js')
+    .pipe(chug({
+      tasks: ['delete_offline_api_stack']
+    }))
+});
+
 gulp.task('delete_api_stack', function() {
   return gulp.src('./api/lambda/gulpfile.js')
     .pipe(chug({
@@ -57,4 +64,8 @@ gulp.task('undeploy', gulp.series(
 
 gulp.task('offline', gulp.series(
   'offline_api_stack'
+));
+
+gulp.task('kill_offline', gulp.series(
+  'delete_offline_api_stack'
 ));

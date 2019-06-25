@@ -20,8 +20,10 @@ const findServer = () => psList().then(data => {
 
 const startServer = () => new Promise((resolve, reject) => {
   const out = fs.openSync(logFile, 'w+');
-  const server = spawn(`${__dirname}/../node_modules/.bin/serverless`, args, {
-    cwd: `${__dirname}/../demo`,
+  //const server = spawn(`${__dirname}/../node_modules/.bin/serverless`, args, {
+  const server = spawn(`${__dirname}/../../node_modules/.bin/serverless`, args, {
+    //cwd: `${__dirname}/../demo`,
+    cwd: `${__dirname}`,
     detached: true,
     env: Object.assign({
       demo_enableAuth: 'true',

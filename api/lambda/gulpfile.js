@@ -66,10 +66,6 @@ gulp.task('delete_api_stack', async function() {
   });
 });
 
-gulp.task('offline_api_stack', async function() {
-  start_offline();
-});
-
 gulp.task('update_functions', async function() {
   var child = spawn('serverless', ['deploy', 'function', '-f', 'health']);
 
@@ -92,4 +88,12 @@ gulp.task('update_functions', async function() {
 
 gulp.task('dev', function() {
   return gulp.watch('src/**/*.elm', gulp.series('update_functions'));
+});
+
+gulp.task('offline_api_stack', async function() {
+  start_offline();
+});
+
+gulp.task('delete_offline_api_stack', async function() {
+  stop_offline();
 });
