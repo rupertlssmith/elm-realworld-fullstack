@@ -1,15 +1,19 @@
 const fs = require('fs');
 const psList = require('ps-list'); // eslint-disable-line import/no-extraneous-dependencies
-const { spawn } = require('child_process');
-const { port } = require('../test/demo/request');
-
+const {
+  spawn
+} = require('child_process');
+const port = 3000
 const args = `offline --port=${port}`.split(' ');
 const logFile = `${__dirname}/test-server.log`;
 const logger = console;
 
 const findServer = () => psList().then(data => {
   const argsPattern = new RegExp(args.join(' '));
-  return data.filter(({ name, cmd }) =>
+  return data.filter(({
+      name,
+      cmd
+    }) =>
     name === 'node' &&
     argsPattern.test(cmd))[0];
 });
@@ -59,14 +63,30 @@ const startServer = () => new Promise((resolve, reject) => {
   process.exit(1);
 });
 
-findServer().then(server => {
-  if (server) {
-    logger.info(`Stopping old test server (${server.pid})`);
-    process.kill(server.pid);
+module.exports = {
+  start_offline: function() {
+    findServer().then(server => {
+      if (server) {
+        logger.info(`Stopping old test server (${server.pid})`);
+        process.kill(server.pid);
+      }
+      logger.info('Starting new test server');
+      setTimeout(startServer, 500);
+    }).catch(err => {
+      logger.error(err);
+      process.exit(1);
+    });
+  },
+
+  stop_offline: function() {
+    findServer().then(server => {
+      if (server) {
+        logger.info(`Stopping old test server (${server.pid})`);
+        process.kill(server.pid);
+      }
+    }).catch(err => {
+      logger.error(err);
+      process.exit(1);
+    });
   }
-  logger.info('Starting new test server');
-  setTimeout(startServer, 500);
-}).catch(err => {
-  logger.error(err);
-  process.exit(1);
-});
+}
