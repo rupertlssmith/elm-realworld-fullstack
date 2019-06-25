@@ -1,0 +1,40 @@
+service: numelm-spike-api
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  profile: default
+  region: eu-west-2
+
+plugins:
+  - serverless-webpack
+  - serverless-offline
+
+custom:
+  serverless-offline:
+    dontPrintOutput: true
+
+functions:
+  health:
+    handler: src/Health/api.handler
+    events:
+      - http:
+          integration: lambda-proxy
+          path: /health/
+          method: ANY
+      - http:
+          integration: lambda-proxy
+          path: /health/{proxy+}
+          method: ANY
+
+  revenue:
+    handler: src/Revenue/api.handler
+    events:
+      - http:
+          integration: lambda-proxy
+          path: /revenue/
+          method: ANY
+      - http:
+          integration: lambda-proxy
+          path: /revenue/{proxy+}
+          method: ANY
