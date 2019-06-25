@@ -47,7 +47,7 @@ main =
 
 endpoint : Conn -> ( Conn, Cmd Msg )
 endpoint conn =
-    ( conn, Cmd.none )
+    respond ( 200, textBody "Hello Elm on AWS Lambda" ) conn
 
 
 update : Msg -> Conn -> ( Conn, Cmd Msg )
