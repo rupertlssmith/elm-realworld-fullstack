@@ -7,7 +7,7 @@
   "scripts": {
     "deploy": "gulp deploy",
     "test": "gulp offline && npm run test:api",
-    "test:api": "newman"
+    "test:api": "APIURL=http://localhost:3000/api ./tests/run-api-tests.sh"
   },
   "dependencies": {
     "@the-sett/serverless-elm-bridge": "^1.0.0",
