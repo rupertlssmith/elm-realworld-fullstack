@@ -46,42 +46,61 @@ main =
 routeParser : Url.Url -> Maybe Route
 routeParser =
     oneOf
-        [ map NewUser (s "users")
-        ]
+        [ map NewUser (s "users") ]
         |> Url.Parser.parse
 
 
 router : Conn -> ( Conn, Cmd Msg )
 router conn =
-    let
-        decodeResult val =
-            Codec.decodeValue Model.newUserRequestCodec val |> Result.mapError Decode.errorToString
+    case ( method conn, route conn ) of
+        ( POST, NewUser ) ->
+            newUserRoute conn
 
-        result =
-            conn |> request |> body |> asJson |> Result.andThen decodeResult
-
-        response =
-            { user =
-                { email = ""
-                , token = ""
-                , username = ""
-                , bio = ""
-                , image = ""
-                }
-            }
-                |> Codec.encodeToValue Model.userResponseCodec
-    in
-    case ( method conn, route conn, result ) of
-        ( POST, NewUser, Ok user ) ->
-            respond ( 201, jsonBody response ) conn
-
-        ( _, _, Ok _ ) ->
+        ( _, _ ) ->
             respond ( 405, textBody "Method not allowed" ) conn
 
-        ( _, _, Err errMsg ) ->
+
+newUserRoute : Conn -> ( Conn, Cmd Msg )
+newUserRoute conn =
+    let
+        decodeResult =
+            bodyDecoder Model.newUserRequestCodec conn
+    in
+    case decodeResult of
+        Ok { user } ->
+            let
+                response =
+                    { user =
+                        { email = user.email
+                        , token = ""
+                        , username = user.username
+                        , bio = ""
+                        , image = ""
+                        }
+                    }
+            in
+            respond ( 201, response |> Codec.encodeToValue Model.userResponseCodec |> jsonBody ) conn
+
+        Err errMsg ->
             respond ( 422, textBody errMsg ) conn
 
 
 update : Msg -> Conn -> ( Conn, Cmd Msg )
 update seed conn =
     ( conn, Cmd.none )
+
+
+
+-- Helper functions
+
+
+bodyDecoder : Codec.Codec a -> Conn -> Result String a
+bodyDecoder codec conn =
+    conn
+        |> request
+        |> body
+        |> asJson
+        |> Result.andThen
+            (Codec.decodeValue codec
+                >> Result.mapError Decode.errorToString
+            )
