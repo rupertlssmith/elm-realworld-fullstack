@@ -19,8 +19,8 @@ port responsePort : Serverless.ResponsePort msg
 
 
 type Route
-    = NewUser
-    | UserLogin
+    = Users
+    | UsersLogin
 
 
 type alias Conn =
@@ -47,8 +47,9 @@ main =
 routeParser : Url.Url -> Maybe Route
 routeParser =
     oneOf
-        [ map NewUser (s "users")
-        , map UserLogin (s "users" </> s "login")
+        [ map Users (s "users")
+        , map Users (s "user")
+        , map UsersLogin (s "users" </> s "login")
         ]
         |> Url.Parser.parse
 
@@ -56,10 +57,16 @@ routeParser =
 router : Conn -> ( Conn, Cmd Msg )
 router conn =
     case ( method conn, route conn ) of
-        ( POST, NewUser ) ->
+        ( POST, Users ) ->
             newUserRoute conn
 
-        ( POST, UserLogin ) ->
+        ( GET, Users ) ->
+            getCurrentUserRoute conn
+
+        ( PUT, Users ) ->
+            updateUserRoute conn
+
+        ( POST, UsersLogin ) ->
             loginRoute conn
 
         ( _, _ ) ->
@@ -89,6 +96,27 @@ newUserRoute conn =
 
         Err errMsg ->
             respond ( 422, textBody errMsg ) conn
+
+
+getCurrentUserRoute : Conn -> ( Conn, Cmd Msg )
+getCurrentUserRoute conn =
+    let
+        response =
+            { user =
+                { email = ""
+                , token = ""
+                , username = ""
+                , bio = ""
+                , image = ""
+                }
+            }
+    in
+    respond ( 200, response |> Codec.encodeToValue Model.userResponseCodec |> jsonBody ) conn
+
+
+updateUserRoute : Conn -> ( Conn, Cmd Msg )
+updateUserRoute conn =
+    respond ( 422, textBody "working on it" ) conn
 
 
 loginRoute : Conn -> ( Conn, Cmd Msg )

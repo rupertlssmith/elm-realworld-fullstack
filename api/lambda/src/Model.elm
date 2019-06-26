@@ -3,12 +3,16 @@ module Model exposing
     , LoginUserRequest
     , NewUser
     , NewUserRequest
+    , UpdateUser
+    , UpdateUserRequest
     , User
     , UserResponse
     , loginUserCodec
     , loginUserRequestCodec
     , newUserCodec
     , newUserRequestCodec
+    , updateUserCodec
+    , updateUserRequestCodev
     , userCodec
     , userResponseCodec
     )
@@ -98,3 +102,19 @@ loginUserCodec =
         |> Codec.field "email" .email Codec.string
         |> Codec.field "password" .password Codec.string
         |> Codec.buildObject
+
+
+type alias UpdateUser =
+    User
+
+
+updateUserCodec =
+    userCodec
+
+
+type alias UpdateUserRequest =
+    UserResponse
+
+
+updateUserRequestCodev =
+    userResponseCodec
