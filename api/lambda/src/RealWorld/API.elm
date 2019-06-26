@@ -59,10 +59,21 @@ router conn =
 
         result =
             conn |> request |> body |> asJson |> Result.andThen decodeResult
+
+        response =
+            { user =
+                { email = ""
+                , token = ""
+                , username = ""
+                , bio = ""
+                , image = ""
+                }
+            }
+                |> Codec.encodeToValue Model.userResponseCodec
     in
     case ( method conn, route conn, result ) of
         ( POST, NewUser, Ok user ) ->
-            respond ( 200, textBody "New User Created" ) conn
+            respond ( 201, jsonBody response ) conn
 
         ( _, _, Ok _ ) ->
             respond ( 405, textBody "Method not allowed" ) conn
