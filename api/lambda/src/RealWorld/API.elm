@@ -20,6 +20,7 @@ port responsePort : Serverless.ResponsePort msg
 
 type Route
     = NewUser
+    | UserLogin
 
 
 type alias Conn =
@@ -46,7 +47,9 @@ main =
 routeParser : Url.Url -> Maybe Route
 routeParser =
     oneOf
-        [ map NewUser (s "users") ]
+        [ map NewUser (s "users")
+        , map UserLogin (s "users" </> s "login")
+        ]
         |> Url.Parser.parse
 
 
@@ -55,6 +58,9 @@ router conn =
     case ( method conn, route conn ) of
         ( POST, NewUser ) ->
             newUserRoute conn
+
+        ( POST, UserLogin ) ->
+            loginRoute conn
 
         ( _, _ ) ->
             respond ( 405, textBody "Method not allowed" ) conn
@@ -80,6 +86,31 @@ newUserRoute conn =
                     }
             in
             respond ( 201, response |> Codec.encodeToValue Model.userResponseCodec |> jsonBody ) conn
+
+        Err errMsg ->
+            respond ( 422, textBody errMsg ) conn
+
+
+loginRoute : Conn -> ( Conn, Cmd Msg )
+loginRoute conn =
+    let
+        decodeResult =
+            bodyDecoder Model.loginUserRequestCodec conn
+    in
+    case decodeResult of
+        Ok { user } ->
+            let
+                response =
+                    { user =
+                        { email = ""
+                        , token = ""
+                        , username = ""
+                        , bio = ""
+                        , image = ""
+                        }
+                    }
+            in
+            respond ( 200, response |> Codec.encodeToValue Model.userResponseCodec |> jsonBody ) conn
 
         Err errMsg ->
             respond ( 422, textBody errMsg ) conn

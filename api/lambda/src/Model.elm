@@ -1,4 +1,17 @@
-module Model exposing (NewUser, NewUserRequest, User, UserResponse, newUserCodec, newUserRequestCodec, userCodec, userResponseCodec)
+module Model exposing
+    ( LoginUser
+    , LoginUserRequest
+    , NewUser
+    , NewUserRequest
+    , User
+    , UserResponse
+    , loginUserCodec
+    , loginUserRequestCodec
+    , newUserCodec
+    , newUserRequestCodec
+    , userCodec
+    , userResponseCodec
+    )
 
 import Codec
 import Dict exposing (Dict)
@@ -60,4 +73,28 @@ userCodec =
         |> Codec.field "username" .username Codec.string
         |> Codec.field "bio" .bio Codec.string
         |> Codec.field "image" .image Codec.string
+        |> Codec.buildObject
+
+
+type alias LoginUserRequest =
+    { user : LoginUser
+    }
+
+
+loginUserRequestCodec =
+    Codec.object LoginUserRequest
+        |> Codec.field "user" .user loginUserCodec
+        |> Codec.buildObject
+
+
+type alias LoginUser =
+    { email : String
+    , password : String
+    }
+
+
+loginUserCodec =
+    Codec.object LoginUser
+        |> Codec.field "email" .email Codec.string
+        |> Codec.field "password" .password Codec.string
         |> Codec.buildObject
