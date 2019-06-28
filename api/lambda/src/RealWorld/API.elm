@@ -21,6 +21,8 @@ port responsePort : Serverless.ResponsePort msg
 type Route
     = Users
     | UsersLogin
+    | Articles
+    | ArticlesFeed
 
 
 type alias Conn =
@@ -50,6 +52,8 @@ routeParser =
         [ map Users (s "users")
         , map Users (s "user")
         , map UsersLogin (s "users" </> s "login")
+        , map Articles (s "articles")
+        , map ArticlesFeed (s "articles" </> s "feed")
         ]
         |> Url.Parser.parse
 
@@ -68,6 +72,12 @@ router conn =
 
         ( POST, UsersLogin ) ->
             loginRoute conn
+
+        ( _, Articles ) ->
+            respond ( 422, textBody "Working on it" ) conn
+
+        ( _, ArticlesFeed ) ->
+            respond ( 422, textBody "Working on it" ) conn
 
         ( _, _ ) ->
             respond ( 405, textBody "Method not allowed" ) conn
