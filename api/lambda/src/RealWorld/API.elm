@@ -25,6 +25,15 @@ type Route
     | ArticlesFeed
 
 
+type alias ArticleQuery =
+    { tag : Maybe String
+    , author : Maybe String
+    , favorited : Maybe String
+    , limit : Maybe Int
+    , offset : Maybe Int
+    }
+
+
 type alias Conn =
     Serverless.Conn.Conn () () Route
 
