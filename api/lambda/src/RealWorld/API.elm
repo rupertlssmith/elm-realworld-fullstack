@@ -116,7 +116,27 @@ getCurrentUserRoute conn =
 
 updateUserRoute : Conn -> ( Conn, Cmd Msg )
 updateUserRoute conn =
-    respond ( 422, textBody "working on it" ) conn
+    let
+        decodeResult =
+            bodyDecoder Model.updateUserRequestCodec conn
+    in
+    case decodeResult of
+        Ok { user } ->
+            let
+                response =
+                    { user =
+                        { email = ""
+                        , token = ""
+                        , username = ""
+                        , bio = ""
+                        , image = ""
+                        }
+                    }
+            in
+            respond ( 200, response |> Codec.encodeToValue Model.userResponseCodec |> jsonBody ) conn
+
+        Err errMsg ->
+            respond ( 422, textBody errMsg ) conn
 
 
 loginRoute : Conn -> ( Conn, Cmd Msg )

@@ -12,7 +12,7 @@ module Model exposing
     , newUserCodec
     , newUserRequestCodec
     , updateUserCodec
-    , updateUserRequestCodev
+    , updateUserRequestCodec
     , userCodec
     , userResponseCodec
     )
@@ -105,16 +105,29 @@ loginUserCodec =
 
 
 type alias UpdateUser =
-    User
+    { email : Maybe String
+    , token : Maybe String
+    , username : Maybe String
+    , bio : Maybe String
+    , image : Maybe String
+    }
 
 
 updateUserCodec =
-    userCodec
+    Codec.object UpdateUser
+        |> Codec.optionalField "email" .email Codec.string
+        |> Codec.optionalField "token" .token Codec.string
+        |> Codec.optionalField "username" .username Codec.string
+        |> Codec.optionalField "bio" .bio Codec.string
+        |> Codec.optionalField "image" .image Codec.string
+        |> Codec.buildObject
 
 
 type alias UpdateUserRequest =
-    UserResponse
+    { user : UpdateUser }
 
 
-updateUserRequestCodev =
-    userResponseCodec
+updateUserRequestCodec =
+    Codec.object UpdateUserRequest
+        |> Codec.field "user" .user updateUserCodec
+        |> Codec.buildObject
