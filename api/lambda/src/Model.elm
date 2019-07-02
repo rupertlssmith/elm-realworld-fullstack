@@ -3,9 +3,12 @@ module Model exposing
     , LoginUser
     , LoginUserRequest
     , MultipleArticlesResponse
+    , NewArticle
+    , NewArticleRequest
     , NewUser
     , NewUserRequest
     , Profile
+    , SingleArticleResponse
     , UpdateUser
     , UpdateUserRequest
     , User
@@ -14,9 +17,12 @@ module Model exposing
     , loginUserCodec
     , loginUserRequestCodec
     , multipleArticlesResponseCodec
+    , newArticleCodec
+    , newArticleRequestCodec
     , newUserCodec
     , newUserRequestCodec
     , profileCodec
+    , singleArticleResponseCodec
     , updateUserCodec
     , updateUserRequestCodec
     , userCodec
@@ -195,4 +201,41 @@ profileCodec =
         |> Codec.field "bio" .bio Codec.string
         |> Codec.field "image" .image Codec.string
         |> Codec.field "following" .following Codec.bool
+        |> Codec.buildObject
+
+
+type alias NewArticleRequest =
+    { article : NewArticle }
+
+
+newArticleRequestCodec =
+    Codec.object NewArticleRequest
+        |> Codec.field "article" .article newArticleCodec
+        |> Codec.buildObject
+
+
+type alias NewArticle =
+    { title : String
+    , description : String
+    , body : String
+    , tagList : List String
+    }
+
+
+newArticleCodec =
+    Codec.object NewArticle
+        |> Codec.field "title" .title Codec.string
+        |> Codec.field "description" .description Codec.string
+        |> Codec.field "body" .body Codec.string
+        |> Codec.field "tagList" .tagList (Codec.list Codec.string)
+        |> Codec.buildObject
+
+
+type alias SingleArticleResponse =
+    { article : Article }
+
+
+singleArticleResponseCodec =
+    Codec.object SingleArticleResponse
+        |> Codec.field "article" .article articleCodec
         |> Codec.buildObject

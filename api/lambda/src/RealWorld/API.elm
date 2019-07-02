@@ -93,7 +93,10 @@ router conn =
             loginRoute conn
 
         ( GET, Articles query ) ->
-            fetchArticles query conn
+            fetchArticlesRoute query conn
+
+        ( POST, Articles _ ) ->
+            newArticleRoute conn
 
         ( _, ArticlesFeed ) ->
             respond ( 422, textBody "Working on it" ) conn
@@ -193,8 +196,8 @@ loginRoute conn =
             respond ( 422, textBody errMsg ) conn
 
 
-fetchArticles : ArticleQuery -> Conn -> ( Conn, Cmd Msg )
-fetchArticles query conn =
+fetchArticlesRoute : ArticleQuery -> Conn -> ( Conn, Cmd Msg )
+fetchArticlesRoute query conn =
     let
         response =
             { articles = []
@@ -202,6 +205,41 @@ fetchArticles query conn =
             }
     in
     respond ( 200, response |> Codec.encodeToValue Model.multipleArticlesResponseCodec |> jsonBody ) conn
+
+
+newArticleRoute : Conn -> ( Conn, Cmd Msg )
+newArticleRoute conn =
+    let
+        decodeResult =
+            bodyDecoder Model.newArticleRequestCodec conn
+    in
+    case decodeResult of
+        Ok { article } ->
+            let
+                response =
+                    { article =
+                        { slug = ""
+                        , title = ""
+                        , description = ""
+                        , body = ""
+                        , tagList = []
+                        , createdAt = ""
+                        , updatedAt = ""
+                        , favorited = False
+                        , favoritesCount = 0
+                        , author =
+                            { username = ""
+                            , bio = ""
+                            , image = ""
+                            , following = False
+                            }
+                        }
+                    }
+            in
+            respond ( 201, response |> Codec.encodeToValue Model.singleArticleResponseCodec |> jsonBody ) conn
+
+        Err errMsg ->
+            respond ( 422, textBody errMsg ) conn
 
 
 update : Msg -> Conn -> ( Conn, Cmd Msg )
