@@ -195,7 +195,13 @@ loginRoute conn =
 
 fetchArticles : ArticleQuery -> Conn -> ( Conn, Cmd Msg )
 fetchArticles query conn =
-    respond ( 422, textBody "Working on it" ) conn
+    let
+        response =
+            { articles = []
+            , articlesCount = 0
+            }
+    in
+    respond ( 200, response |> Codec.encodeToValue Model.multipleArticlesResponseCodec |> jsonBody ) conn
 
 
 update : Msg -> Conn -> ( Conn, Cmd Msg )
