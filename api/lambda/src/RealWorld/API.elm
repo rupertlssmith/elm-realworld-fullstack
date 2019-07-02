@@ -92,8 +92,8 @@ router conn =
         ( POST, UsersLogin ) ->
             loginRoute conn
 
-        ( _, Articles query ) ->
-            respond ( 422, textBody "Working on it" ) conn
+        ( GET, Articles query ) ->
+            fetchArticles query conn
 
         ( _, ArticlesFeed ) ->
             respond ( 422, textBody "Working on it" ) conn
@@ -191,6 +191,11 @@ loginRoute conn =
 
         Err errMsg ->
             respond ( 422, textBody errMsg ) conn
+
+
+fetchArticles : ArticleQuery -> Conn -> ( Conn, Cmd Msg )
+fetchArticles query conn =
+    respond ( 422, textBody "Working on it" ) conn
 
 
 update : Msg -> Conn -> ( Conn, Cmd Msg )

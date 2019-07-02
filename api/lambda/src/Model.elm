@@ -1,16 +1,22 @@
 module Model exposing
-    ( LoginUser
+    ( Article
+    , LoginUser
     , LoginUserRequest
+    , MultipleArticlesResponse
     , NewUser
     , NewUserRequest
+    , Profile
     , UpdateUser
     , UpdateUserRequest
     , User
     , UserResponse
+    , articleCodec
     , loginUserCodec
     , loginUserRequestCodec
+    , multipleArticlesResponseCodec
     , newUserCodec
     , newUserRequestCodec
+    , profileCodec
     , updateUserCodec
     , updateUserRequestCodec
     , userCodec
@@ -130,4 +136,63 @@ type alias UpdateUserRequest =
 updateUserRequestCodec =
     Codec.object UpdateUserRequest
         |> Codec.field "user" .user updateUserCodec
+        |> Codec.buildObject
+
+
+type alias MultipleArticlesResponse =
+    { articles : List Article
+    , articlesCount : Int
+    }
+
+
+multipleArticlesResponseCodec =
+    Codec.object MultipleArticlesResponse
+        |> Codec.field "articles" .articles (Codec.list articleCodec)
+        |> Codec.field "articlesCount" .articlesCount Codec.int
+        |> Codec.buildObject
+
+
+type alias Article =
+    { slug : String
+    , title : String
+    , description : String
+    , body : String
+    , tagList : List String
+    , createdAt : String
+    , updatedAt : String
+    , favorited : Bool
+    , favoritesCount : Int
+    , author : Profile
+    }
+
+
+articleCodec =
+    Codec.object Article
+        |> Codec.field "slug" .slug Codec.string
+        |> Codec.field "title" .title Codec.string
+        |> Codec.field "description" .description Codec.string
+        |> Codec.field "body" .body Codec.string
+        |> Codec.field "tagList" .tagList (Codec.list Codec.string)
+        |> Codec.field "createdAt" .createdAt Codec.string
+        |> Codec.field "updatedAt" .updatedAt Codec.string
+        |> Codec.field "favorited" .favorited Codec.bool
+        |> Codec.field "favoritesCount" .favoritesCount Codec.int
+        |> Codec.field "author" .author profileCodec
+        |> Codec.buildObject
+
+
+type alias Profile =
+    { username : String
+    , bio : String
+    , image : String
+    , following : Bool
+    }
+
+
+profileCodec =
+    Codec.object Profile
+        |> Codec.field "username" .username Codec.string
+        |> Codec.field "bio" .bio Codec.string
+        |> Codec.field "image" .image Codec.string
+        |> Codec.field "following" .following Codec.bool
         |> Codec.buildObject
