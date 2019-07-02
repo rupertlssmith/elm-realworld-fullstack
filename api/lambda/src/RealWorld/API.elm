@@ -9,7 +9,8 @@ import Serverless
 import Serverless.Conn exposing (jsonBody, method, request, respond, route, textBody)
 import Serverless.Conn.Request exposing (Method(..), Request, asJson, body)
 import Url
-import Url.Parser exposing ((</>), int, map, oneOf, s, top)
+import Url.Parser exposing ((</>), (<?>), int, map, oneOf, s, top)
+import Url.Parser.Query as Query
 
 
 port requestPort : Serverless.RequestPort msg
@@ -21,7 +22,7 @@ port responsePort : Serverless.ResponsePort msg
 type Route
     = Users
     | UsersLogin
-    | Articles
+    | Articles ArticleQuery
     | ArticlesFeed
 
 
@@ -57,11 +58,20 @@ main =
 
 routeParser : Url.Url -> Maybe Route
 routeParser =
+    let
+        articleQuery =
+            Query.map5 ArticleQuery
+                (Query.string "tag")
+                (Query.string "author")
+                (Query.string "favorited")
+                (Query.int "limit")
+                (Query.int "offset")
+    in
     oneOf
         [ map Users (s "users")
         , map Users (s "user")
         , map UsersLogin (s "users" </> s "login")
-        , map Articles (s "articles")
+        , map Articles (s "articles" <?> articleQuery)
         , map ArticlesFeed (s "articles" </> s "feed")
         ]
         |> Url.Parser.parse
@@ -82,7 +92,7 @@ router conn =
         ( POST, UsersLogin ) ->
             loginRoute conn
 
-        ( _, Articles ) ->
+        ( _, Articles query ) ->
             respond ( 422, textBody "Working on it" ) conn
 
         ( _, ArticlesFeed ) ->
