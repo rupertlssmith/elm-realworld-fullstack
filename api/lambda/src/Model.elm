@@ -1,14 +1,19 @@
 module Model exposing
     ( Article
+    , Comment
     , LoginUser
     , LoginUserRequest
     , MultipleArticlesResponse
+    , MultipleCommentsResponse
     , NewArticle
     , NewArticleRequest
+    , NewComment
+    , NewCommentRequest
     , NewUser
     , NewUserRequest
     , Profile
     , SingleArticleResponse
+    , SingleCommentResponse
     , UpdateArticle
     , UpdateArticleRequest
     , UpdateUser
@@ -16,15 +21,20 @@ module Model exposing
     , User
     , UserResponse
     , articleCodec
+    , commentCodec
     , loginUserCodec
     , loginUserRequestCodec
     , multipleArticlesResponseCodec
+    , multipleCommentsResponseCodec
     , newArticleCodec
     , newArticleRequestCodec
+    , newCommentCodec
+    , newCommentRequestCodec
     , newUserCodec
     , newUserRequestCodec
     , profileCodec
     , singleArticleResponseCodec
+    , singleCommentResponseCodec
     , updateArticleCodec
     , updateArticleRequestCodec
     , updateUserCodec
@@ -267,4 +277,63 @@ type alias SingleArticleResponse =
 singleArticleResponseCodec =
     Codec.object SingleArticleResponse
         |> Codec.field "article" .article articleCodec
+        |> Codec.buildObject
+
+
+type alias Comment =
+    { id : String
+    , createdAt : String
+    , updatedAt : String
+    , body : String
+    , author : Profile
+    }
+
+
+commentCodec =
+    Codec.object Comment
+        |> Codec.field "id" .id Codec.string
+        |> Codec.field "createdAt" .createdAt Codec.string
+        |> Codec.field "updatedAt" .updatedAt Codec.string
+        |> Codec.field "body" .body Codec.string
+        |> Codec.field "author" .author profileCodec
+        |> Codec.buildObject
+
+
+type alias MultipleCommentsResponse =
+    { comments : List Comment }
+
+
+multipleCommentsResponseCodec =
+    Codec.object MultipleCommentsResponse
+        |> Codec.field "comments" .comments (Codec.list commentCodec)
+        |> Codec.buildObject
+
+
+type alias SingleCommentResponse =
+    { comment : Comment }
+
+
+singleCommentResponseCodec =
+    Codec.object SingleCommentResponse
+        |> Codec.field "comment" .comment commentCodec
+        |> Codec.buildObject
+
+
+type alias NewCommentRequest =
+    { comment : NewComment }
+
+
+newCommentRequestCodec =
+    Codec.object NewCommentRequest
+        |> Codec.field "comment" .comment newCommentCodec
+        |> Codec.buildObject
+
+
+type alias NewComment =
+    { body : String }
+
+
+newCommentCodec =
+    Codec.object NewComment
+        |> Codec.field "body" .body Codec.string
         |> Codec.buildObject

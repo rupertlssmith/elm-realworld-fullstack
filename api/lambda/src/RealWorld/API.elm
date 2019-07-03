@@ -155,6 +155,8 @@ type Route
     | ArticlesSlug String
     | ArticlesFeed PaginationQuery
     | ArticlesSlugFavorite String
+    | ArticlesSlugComments String
+    | ArticlesSlugCommentsId String String
 
 
 type alias ArticleQuery =
@@ -196,6 +198,8 @@ routeParser =
         , map ArticlesFeed (s "articles" </> s "feed" <?> paginationQuery)
         , map ArticlesSlug (s "articles" </> Url.Parser.string)
         , map ArticlesSlugFavorite (s "articles" </> Url.Parser.string </> s "favorite")
+        , map ArticlesSlugComments (s "articles" </> Url.Parser.string </> s "comments")
+        , map ArticlesSlugCommentsId (s "articles" </> Url.Parser.string </> s "comments" </> Url.Parser.string)
         ]
         |> Url.Parser.parse
 
@@ -239,6 +243,15 @@ router conn =
 
         ( DELETE, ArticlesSlugFavorite slug ) ->
             unfavoriteArticleRoute slug conn
+
+        ( POST, ArticlesSlugComments slug ) ->
+            postCommentRoute slug conn
+
+        ( GET, ArticlesSlugComments slug ) ->
+            fetchCommentsRoute slug conn
+
+        ( DELETE, ArticlesSlugCommentsId slug id ) ->
+            removeCommentRoute slug id conn
 
         ( _, _ ) ->
             respond ( 405, textBody "Method not allowed" ) conn
@@ -386,6 +399,18 @@ unfavoriteArticleRoute slug conn =
             singleArticle
     in
     respond ( 201, response |> Codec.encodeToValue Model.singleArticleResponseCodec |> jsonBody ) conn
+
+
+postCommentRoute slug conn =
+    respond ( 404, textBody "Working on it." ) conn
+
+
+fetchCommentsRoute slug conn =
+    respond ( 404, textBody "Working on it." ) conn
+
+
+removeCommentRoute slug id conn =
+    respond ( 404, textBody "Working on it." ) conn
 
 
 
