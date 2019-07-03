@@ -29,6 +29,28 @@ userResponse =
     }
 
 
+profileResponse : Model.ProfileResponse
+profileResponse =
+    { profile =
+        { username = "jake"
+        , bio = "I work at statefarm"
+        , image = "https://static.productionready.io/images/smiley-cyrus.jpg"
+        , following = False
+        }
+    }
+
+
+followProfileResponse : Model.ProfileResponse
+followProfileResponse =
+    { profile =
+        { username = "jake"
+        , bio = "I work at statefarm"
+        , image = "https://static.productionready.io/images/smiley-cyrus.jpg"
+        , following = True
+        }
+    }
+
+
 singleArticle : Model.SingleArticleResponse
 singleArticle =
     { article =
@@ -186,6 +208,8 @@ main =
 type Route
     = Users
     | UsersLogin
+    | ProfilesId String
+    | ProfilesIdFollow String
     | Articles ArticleQuery
     | ArticlesSlug String
     | ArticlesFeed PaginationQuery
@@ -229,6 +253,8 @@ routeParser =
         [ map Users (s "users")
         , map Users (s "user")
         , map UsersLogin (s "users" </> s "login")
+        , map ProfilesId (s "profiles" </> Url.Parser.string)
+        , map ProfilesIdFollow (s "profiles" </> Url.Parser.string </> s "follow")
         , map Articles (s "articles" <?> articleQuery)
         , map ArticlesFeed (s "articles" </> s "feed" <?> paginationQuery)
         , map ArticlesSlug (s "articles" </> Url.Parser.string)
@@ -257,6 +283,15 @@ router conn =
 
         ( POST, UsersLogin ) ->
             loginRoute conn
+
+        ( GET, ProfilesId id ) ->
+            fetchProfileRoute id conn
+
+        ( POST, ProfilesIdFollow id ) ->
+            followProfileRoute id conn
+
+        ( DELETE, ProfilesIdFollow id ) ->
+            unfollowProfileRoute id conn
 
         ( GET, Articles query ) ->
             fetchArticlesRoute query conn
@@ -355,6 +390,33 @@ loginRoute conn =
             respond ( 422, textBody errMsg ) conn
 
 
+fetchProfileRoute : String -> Conn -> ( Conn, Cmd Msg )
+fetchProfileRoute id conn =
+    let
+        response =
+            profileResponse
+    in
+    respond ( 200, response |> Codec.encodeToValue Model.profileResponseCodec |> jsonBody ) conn
+
+
+followProfileRoute : String -> Conn -> ( Conn, Cmd Msg )
+followProfileRoute id conn =
+    let
+        response =
+            followProfileResponse
+    in
+    respond ( 200, response |> Codec.encodeToValue Model.profileResponseCodec |> jsonBody ) conn
+
+
+unfollowProfileRoute : String -> Conn -> ( Conn, Cmd Msg )
+unfollowProfileRoute id conn =
+    let
+        response =
+            profileResponse
+    in
+    respond ( 200, response |> Codec.encodeToValue Model.profileResponseCodec |> jsonBody ) conn
+
+
 fetchArticlesRoute : ArticleQuery -> Conn -> ( Conn, Cmd Msg )
 fetchArticlesRoute query conn =
     let
@@ -424,7 +486,7 @@ favoriteArticleRoute slug conn =
         response =
             favoriteArticle
     in
-    respond ( 201, response |> Codec.encodeToValue Model.singleArticleResponseCodec |> jsonBody ) conn
+    respond ( 200, response |> Codec.encodeToValue Model.singleArticleResponseCodec |> jsonBody ) conn
 
 
 unfavoriteArticleRoute : String -> Conn -> ( Conn, Cmd Msg )
@@ -433,7 +495,7 @@ unfavoriteArticleRoute slug conn =
         response =
             singleArticle
     in
-    respond ( 201, response |> Codec.encodeToValue Model.singleArticleResponseCodec |> jsonBody ) conn
+    respond ( 200, response |> Codec.encodeToValue Model.singleArticleResponseCodec |> jsonBody ) conn
 
 
 postCommentRoute : String -> Conn -> ( Conn, Cmd Msg )
@@ -448,7 +510,7 @@ postCommentRoute slug conn =
                 response =
                     singleComment
             in
-            respond ( 201, response |> Codec.encodeToValue Model.singleCommentResponseCodec |> jsonBody ) conn
+            respond ( 200, response |> Codec.encodeToValue Model.singleCommentResponseCodec |> jsonBody ) conn
 
         Err errMsg ->
             respond ( 422, textBody errMsg ) conn
@@ -469,7 +531,7 @@ removeCommentRoute slug id conn =
         response =
             singleComment
     in
-    respond ( 201, response |> Codec.encodeToValue Model.singleCommentResponseCodec |> jsonBody ) conn
+    respond ( 200, response |> Codec.encodeToValue Model.singleCommentResponseCodec |> jsonBody ) conn
 
 
 

@@ -12,6 +12,7 @@ module Model exposing
     , NewUser
     , NewUserRequest
     , Profile
+    , ProfileResponse
     , SingleArticleResponse
     , SingleCommentResponse
     , UpdateArticle
@@ -33,6 +34,7 @@ module Model exposing
     , newUserCodec
     , newUserRequestCodec
     , profileCodec
+    , profileResponseCodec
     , singleArticleResponseCodec
     , singleCommentResponseCodec
     , updateArticleCodec
@@ -215,6 +217,16 @@ profileCodec =
         |> Codec.field "bio" .bio Codec.string
         |> Codec.field "image" .image Codec.string
         |> Codec.field "following" .following Codec.bool
+        |> Codec.buildObject
+
+
+type alias ProfileResponse =
+    { profile : Profile }
+
+
+profileResponseCodec =
+    Codec.object ProfileResponse
+        |> Codec.field "profile" .profile profileCodec
         |> Codec.buildObject
 
 
