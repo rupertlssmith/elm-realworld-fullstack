@@ -15,6 +15,7 @@ module Model exposing
     , ProfileResponse
     , SingleArticleResponse
     , SingleCommentResponse
+    , TagsResponse
     , UpdateArticle
     , UpdateArticleRequest
     , UpdateUser
@@ -37,6 +38,7 @@ module Model exposing
     , profileResponseCodec
     , singleArticleResponseCodec
     , singleCommentResponseCodec
+    , tagsResponseCodec
     , updateArticleCodec
     , updateArticleRequestCodec
     , updateUserCodec
@@ -348,4 +350,14 @@ type alias NewComment =
 newCommentCodec =
     Codec.object NewComment
         |> Codec.field "body" .body Codec.string
+        |> Codec.buildObject
+
+
+type alias TagsResponse =
+    { tags : List String }
+
+
+tagsResponseCodec =
+    Codec.object TagsResponse
+        |> Codec.field "tags" .tags (Codec.list Codec.string)
         |> Codec.buildObject
