@@ -39,6 +39,28 @@ singleArticle =
     }
 
 
+favoriteArticle : Model.SingleArticleResponse
+favoriteArticle =
+    { article =
+        { slug = "how-to-train-your-dragon"
+        , title = "How to train your dragon"
+        , description = "Ever wonder how?"
+        , body = "It takes a Jacobian"
+        , tagList = [ "dragons", "training" ]
+        , createdAt = "2016-02-18T03:22:56.637Z"
+        , updatedAt = "2016-02-18T03:48:35.824Z"
+        , favorited = True
+        , favoritesCount = 1
+        , author =
+            { username = "jake"
+            , bio = "I work at statefarm"
+            , image = "https=//i.stack.imgur.com/xHWG8.jpg"
+            , following = False
+            }
+        }
+    }
+
+
 multipleArticles : Model.MultipleArticlesResponse
 multipleArticles =
     { articles =
@@ -132,6 +154,7 @@ type Route
     | Articles ArticleQuery
     | ArticlesSlug String
     | ArticlesFeed PaginationQuery
+    | ArticlesSlugFavorite String
 
 
 type alias ArticleQuery =
@@ -172,6 +195,7 @@ routeParser =
         , map Articles (s "articles" <?> articleQuery)
         , map ArticlesFeed (s "articles" </> s "feed" <?> paginationQuery)
         , map ArticlesSlug (s "articles" </> Url.Parser.string)
+        , map ArticlesSlugFavorite (s "articles" </> Url.Parser.string </> s "favorite")
         ]
         |> Url.Parser.parse
 
@@ -209,6 +233,12 @@ router conn =
 
         ( GET, ArticlesFeed query ) ->
             fetchFeedRoute query conn
+
+        ( POST, ArticlesSlugFavorite slug ) ->
+            favoriteArticleRoute slug conn
+
+        ( DELETE, ArticlesSlugFavorite slug ) ->
+            unfavoriteArticleRoute slug conn
 
         ( _, _ ) ->
             respond ( 405, textBody "Method not allowed" ) conn
@@ -338,6 +368,24 @@ fetchFeedRoute query conn =
             multipleArticles
     in
     respond ( 200, response |> Codec.encodeToValue Model.multipleArticlesResponseCodec |> jsonBody ) conn
+
+
+favoriteArticleRoute : String -> Conn -> ( Conn, Cmd Msg )
+favoriteArticleRoute slug conn =
+    let
+        response =
+            favoriteArticle
+    in
+    respond ( 201, response |> Codec.encodeToValue Model.singleArticleResponseCodec |> jsonBody ) conn
+
+
+unfavoriteArticleRoute : String -> Conn -> ( Conn, Cmd Msg )
+unfavoriteArticleRoute slug conn =
+    let
+        response =
+            singleArticle
+    in
+    respond ( 201, response |> Codec.encodeToValue Model.singleArticleResponseCodec |> jsonBody ) conn
 
 
 
