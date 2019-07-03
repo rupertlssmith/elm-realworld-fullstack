@@ -17,6 +17,18 @@ import Url.Parser.Query as Query
 -- Dummy data for mocking the API.
 
 
+userResponse : Model.UserResponse
+userResponse =
+    { user =
+        { email = "jake@jake.jake"
+        , token = "jwt.token.here"
+        , username = "jake"
+        , bio = "I work at statefarm"
+        , image = ""
+        }
+    }
+
+
 singleArticle : Model.SingleArticleResponse
 singleArticle =
     { article =
@@ -101,15 +113,38 @@ multipleArticles =
     }
 
 
-userResponse : Model.UserResponse
-userResponse =
-    { user =
-        { email = "jake@jake.jake"
-        , token = "jwt.token.here"
-        , username = "jake"
-        , bio = "I work at statefarm"
-        , image = ""
+singleComment : Model.SingleCommentResponse
+singleComment =
+    { comment =
+        { id = "1"
+        , createdAt = "2016-02-18T03:22:56.637Z"
+        , updatedAt = "2016-02-18T03:22:56.637Z"
+        , body = "It takes a Jacobian"
+        , author =
+            { username = "jake"
+            , bio = "I work at statefarm"
+            , image = "https://i.stack.imgur.com/xHWG8.jpg"
+            , following = False
+            }
         }
+    }
+
+
+multipleComments : Model.MultipleCommentsResponse
+multipleComments =
+    { comments =
+        [ { id = "1"
+          , createdAt = "2016-02-18T03:22:56.637Z"
+          , updatedAt = "2016-02-18T03:22:56.637Z"
+          , body = "It takes a Jacobian"
+          , author =
+                { username = "jake"
+                , bio = "I work at statefarm"
+                , image = "https://i.stack.imgur.com/xHWG8.jpg"
+                , following = False
+                }
+          }
+        ]
     }
 
 
@@ -401,16 +436,40 @@ unfavoriteArticleRoute slug conn =
     respond ( 201, response |> Codec.encodeToValue Model.singleArticleResponseCodec |> jsonBody ) conn
 
 
+postCommentRoute : String -> Conn -> ( Conn, Cmd Msg )
 postCommentRoute slug conn =
-    respond ( 404, textBody "Working on it." ) conn
+    let
+        decodeResult =
+            bodyDecoder Model.newCommentRequestCodec conn
+    in
+    case decodeResult of
+        Ok { comment } ->
+            let
+                response =
+                    singleComment
+            in
+            respond ( 201, response |> Codec.encodeToValue Model.singleCommentResponseCodec |> jsonBody ) conn
+
+        Err errMsg ->
+            respond ( 422, textBody errMsg ) conn
 
 
+fetchCommentsRoute : String -> Conn -> ( Conn, Cmd Msg )
 fetchCommentsRoute slug conn =
-    respond ( 404, textBody "Working on it." ) conn
+    let
+        response =
+            multipleComments
+    in
+    respond ( 200, response |> Codec.encodeToValue Model.multipleCommentsResponseCodec |> jsonBody ) conn
 
 
+removeCommentRoute : String -> String -> Conn -> ( Conn, Cmd Msg )
 removeCommentRoute slug id conn =
-    respond ( 404, textBody "Working on it." ) conn
+    let
+        response =
+            singleComment
+    in
+    respond ( 201, response |> Codec.encodeToValue Model.singleCommentResponseCodec |> jsonBody ) conn
 
 
 
