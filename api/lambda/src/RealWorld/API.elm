@@ -170,6 +170,15 @@ multipleComments =
     }
 
 
+tagsResponse : Model.TagsResponse
+tagsResponse =
+    { tags =
+        [ "reactjs"
+        , "angularjs"
+        ]
+    }
+
+
 
 -- Servlerless program.
 
@@ -216,6 +225,7 @@ type Route
     | ArticlesSlugFavorite String
     | ArticlesSlugComments String
     | ArticlesSlugCommentsId String String
+    | Tags
 
 
 type alias ArticleQuery =
@@ -261,6 +271,7 @@ routeParser =
         , map ArticlesSlugFavorite (s "articles" </> Url.Parser.string </> s "favorite")
         , map ArticlesSlugComments (s "articles" </> Url.Parser.string </> s "comments")
         , map ArticlesSlugCommentsId (s "articles" </> Url.Parser.string </> s "comments" </> Url.Parser.string)
+        , map Tags (s "tags")
         ]
         |> Url.Parser.parse
 
@@ -322,6 +333,9 @@ router conn =
 
         ( DELETE, ArticlesSlugCommentsId slug id ) ->
             removeCommentRoute slug id conn
+
+        ( GET, Tags ) ->
+            fetchTagsRoute conn
 
         ( _, _ ) ->
             respond ( 405, textBody "Method not allowed" ) conn
@@ -532,6 +546,15 @@ removeCommentRoute slug id conn =
             singleComment
     in
     respond ( 200, response |> Codec.encodeToValue Model.singleCommentResponseCodec |> jsonBody ) conn
+
+
+fetchTagsRoute : Conn -> ( Conn, Cmd Msg )
+fetchTagsRoute conn =
+    let
+        response =
+            tagsResponse
+    in
+    respond ( 200, response |> Codec.encodeToValue Model.tagsResponseCodec |> jsonBody ) conn
 
 
 
