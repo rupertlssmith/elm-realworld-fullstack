@@ -23,7 +23,7 @@ type Route
     = Users
     | UsersLogin
     | Articles ArticleQuery
-    | ArticlesFeed
+    | ArticlesFeed PaginationQuery
 
 
 type alias ArticleQuery =
@@ -31,6 +31,12 @@ type alias ArticleQuery =
     , author : Maybe String
     , favorited : Maybe String
     , limit : Maybe Int
+    , offset : Maybe Int
+    }
+
+
+type alias PaginationQuery =
+    { limit : Maybe Int
     , offset : Maybe Int
     }
 
@@ -66,13 +72,18 @@ routeParser =
                 (Query.string "favorited")
                 (Query.int "limit")
                 (Query.int "offset")
+
+        paginationQuery =
+            Query.map2 PaginationQuery
+                (Query.int "limit")
+                (Query.int "offset")
     in
     oneOf
         [ map Users (s "users")
         , map Users (s "user")
         , map UsersLogin (s "users" </> s "login")
         , map Articles (s "articles" <?> articleQuery)
-        , map ArticlesFeed (s "articles" </> s "feed")
+        , map ArticlesFeed (s "articles" </> s "feed" <?> paginationQuery)
         ]
         |> Url.Parser.parse
 
@@ -98,8 +109,8 @@ router conn =
         ( POST, Articles _ ) ->
             newArticleRoute conn
 
-        ( _, ArticlesFeed ) ->
-            respond ( 422, textBody "Working on it" ) conn
+        ( GET, ArticlesFeed query ) ->
+            fetchFeedRoute query conn
 
         ( _, _ ) ->
             respond ( 405, textBody "Method not allowed" ) conn
@@ -240,6 +251,11 @@ newArticleRoute conn =
 
         Err errMsg ->
             respond ( 422, textBody errMsg ) conn
+
+
+fetchFeedRoute : PaginationQuery -> Conn -> ( Conn, Cmd Msg )
+fetchFeedRoute query conn =
+    respond ( 422, textBody "Working on it" ) conn
 
 
 update : Msg -> Conn -> ( Conn, Cmd Msg )
