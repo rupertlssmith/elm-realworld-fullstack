@@ -146,7 +146,7 @@ routeParser =
 
 router : Conn -> ( Conn, Cmd Msg )
 router conn =
-    case ( method conn, route conn ) of
+    case ( method conn, Debug.log "route" <| route conn ) of
         ( POST, Users ) ->
             newUserRoute conn
 
