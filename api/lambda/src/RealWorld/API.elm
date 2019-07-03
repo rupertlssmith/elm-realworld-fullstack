@@ -17,6 +17,7 @@ import Url.Parser.Query as Query
 -- Dummy data for mocking the API.
 
 
+singleArticle : Model.SingleArticleResponse
 singleArticle =
     { article =
         { slug = "how-to-train-your-dragon"
@@ -38,6 +39,7 @@ singleArticle =
     }
 
 
+multipleArticles : Model.MultipleArticlesResponse
 multipleArticles =
     { articles =
         [ { slug = "how-to-train-your-dragon"
@@ -77,6 +79,7 @@ multipleArticles =
     }
 
 
+userResponse : Model.UserResponse
 userResponse =
     { user =
         { email = "jake@jake.jake"
