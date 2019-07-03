@@ -9,6 +9,8 @@ module Model exposing
     , NewUserRequest
     , Profile
     , SingleArticleResponse
+    , UpdateArticle
+    , UpdateArticleRequest
     , UpdateUser
     , UpdateUserRequest
     , User
@@ -23,6 +25,8 @@ module Model exposing
     , newUserRequestCodec
     , profileCodec
     , singleArticleResponseCodec
+    , updateArticleCodec
+    , updateArticleRequestCodec
     , updateUserCodec
     , updateUserRequestCodec
     , userCodec
@@ -228,6 +232,31 @@ newArticleCodec =
         |> Codec.field "description" .description Codec.string
         |> Codec.field "body" .body Codec.string
         |> Codec.field "tagList" .tagList (Codec.list Codec.string)
+        |> Codec.buildObject
+
+
+type alias UpdateArticleRequest =
+    { article : UpdateArticle }
+
+
+updateArticleRequestCodec =
+    Codec.object UpdateArticleRequest
+        |> Codec.field "article" .article updateArticleCodec
+        |> Codec.buildObject
+
+
+type alias UpdateArticle =
+    { title : Maybe String
+    , description : Maybe String
+    , body : Maybe String
+    }
+
+
+updateArticleCodec =
+    Codec.object UpdateArticle
+        |> Codec.optionalField "title" .title Codec.string
+        |> Codec.optionalField "description" .description Codec.string
+        |> Codec.optionalField "body" .body Codec.string
         |> Codec.buildObject
 
 

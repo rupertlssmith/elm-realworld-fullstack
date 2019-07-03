@@ -13,32 +13,56 @@ import Url.Parser exposing ((</>), (<?>), int, map, oneOf, s, top)
 import Url.Parser.Query as Query
 
 
+
+-- Dummy data for mocking the API.
+
+
+singleArticle =
+    { article =
+        { slug = ""
+        , title = ""
+        , description = ""
+        , body = ""
+        , tagList = []
+        , createdAt = ""
+        , updatedAt = ""
+        , favorited = False
+        , favoritesCount = 0
+        , author =
+            { username = ""
+            , bio = ""
+            , image = ""
+            , following = False
+            }
+        }
+    }
+
+
+multipleArticles =
+    { articles = []
+    , articlesCount = 0
+    }
+
+
+userResponse =
+    { user =
+        { email = ""
+        , token = ""
+        , username = ""
+        , bio = ""
+        , image = ""
+        }
+    }
+
+
+
+-- Servlerless program.
+
+
 port requestPort : Serverless.RequestPort msg
 
 
 port responsePort : Serverless.ResponsePort msg
-
-
-type Route
-    = Users
-    | UsersLogin
-    | Articles ArticleQuery
-    | ArticlesFeed PaginationQuery
-
-
-type alias ArticleQuery =
-    { tag : Maybe String
-    , author : Maybe String
-    , favorited : Maybe String
-    , limit : Maybe Int
-    , offset : Maybe Int
-    }
-
-
-type alias PaginationQuery =
-    { limit : Maybe Int
-    , offset : Maybe Int
-    }
 
 
 type alias Conn =
@@ -62,6 +86,33 @@ main =
         }
 
 
+
+-- Route and query parsing.
+
+
+type Route
+    = Users
+    | UsersLogin
+    | Articles ArticleQuery
+    | ArticlesSlug String
+    | ArticlesFeed PaginationQuery
+
+
+type alias ArticleQuery =
+    { tag : Maybe String
+    , author : Maybe String
+    , favorited : Maybe String
+    , limit : Maybe Int
+    , offset : Maybe Int
+    }
+
+
+type alias PaginationQuery =
+    { limit : Maybe Int
+    , offset : Maybe Int
+    }
+
+
 routeParser : Url.Url -> Maybe Route
 routeParser =
     let
@@ -83,9 +134,14 @@ routeParser =
         , map Users (s "user")
         , map UsersLogin (s "users" </> s "login")
         , map Articles (s "articles" <?> articleQuery)
+        , map ArticlesSlug (s "articles" </> Url.Parser.string)
         , map ArticlesFeed (s "articles" </> s "feed" <?> paginationQuery)
         ]
         |> Url.Parser.parse
+
+
+
+-- Route processing.
 
 
 router : Conn -> ( Conn, Cmd Msg )
@@ -109,6 +165,12 @@ router conn =
         ( POST, Articles _ ) ->
             newArticleRoute conn
 
+        ( GET, ArticlesSlug slug ) ->
+            fetchArticleRoute slug conn
+
+        ( PUT, ArticlesSlug slug ) ->
+            updateArticleRoute slug conn
+
         ( GET, ArticlesFeed query ) ->
             fetchFeedRoute query conn
 
@@ -126,14 +188,7 @@ newUserRoute conn =
         Ok { user } ->
             let
                 response =
-                    { user =
-                        { email = user.email
-                        , token = ""
-                        , username = user.username
-                        , bio = ""
-                        , image = ""
-                        }
-                    }
+                    userResponse
             in
             respond ( 201, response |> Codec.encodeToValue Model.userResponseCodec |> jsonBody ) conn
 
@@ -145,14 +200,7 @@ getCurrentUserRoute : Conn -> ( Conn, Cmd Msg )
 getCurrentUserRoute conn =
     let
         response =
-            { user =
-                { email = ""
-                , token = ""
-                , username = ""
-                , bio = ""
-                , image = ""
-                }
-            }
+            userResponse
     in
     respond ( 200, response |> Codec.encodeToValue Model.userResponseCodec |> jsonBody ) conn
 
@@ -167,14 +215,7 @@ updateUserRoute conn =
         Ok { user } ->
             let
                 response =
-                    { user =
-                        { email = ""
-                        , token = ""
-                        , username = ""
-                        , bio = ""
-                        , image = ""
-                        }
-                    }
+                    userResponse
             in
             respond ( 200, response |> Codec.encodeToValue Model.userResponseCodec |> jsonBody ) conn
 
@@ -192,14 +233,7 @@ loginRoute conn =
         Ok { user } ->
             let
                 response =
-                    { user =
-                        { email = ""
-                        , token = ""
-                        , username = ""
-                        , bio = ""
-                        , image = ""
-                        }
-                    }
+                    userResponse
             in
             respond ( 200, response |> Codec.encodeToValue Model.userResponseCodec |> jsonBody ) conn
 
@@ -211,9 +245,7 @@ fetchArticlesRoute : ArticleQuery -> Conn -> ( Conn, Cmd Msg )
 fetchArticlesRoute query conn =
     let
         response =
-            { articles = []
-            , articlesCount = 0
-            }
+            multipleArticles
     in
     respond ( 200, response |> Codec.encodeToValue Model.multipleArticlesResponseCodec |> jsonBody ) conn
 
@@ -228,24 +260,34 @@ newArticleRoute conn =
         Ok { article } ->
             let
                 response =
-                    { article =
-                        { slug = ""
-                        , title = ""
-                        , description = ""
-                        , body = ""
-                        , tagList = []
-                        , createdAt = ""
-                        , updatedAt = ""
-                        , favorited = False
-                        , favoritesCount = 0
-                        , author =
-                            { username = ""
-                            , bio = ""
-                            , image = ""
-                            , following = False
-                            }
-                        }
-                    }
+                    singleArticle
+            in
+            respond ( 201, response |> Codec.encodeToValue Model.singleArticleResponseCodec |> jsonBody ) conn
+
+        Err errMsg ->
+            respond ( 422, textBody errMsg ) conn
+
+
+fetchArticleRoute : String -> Conn -> ( Conn, Cmd Msg )
+fetchArticleRoute slug conn =
+    let
+        response =
+            singleArticle
+    in
+    respond ( 201, response |> Codec.encodeToValue Model.singleArticleResponseCodec |> jsonBody ) conn
+
+
+updateArticleRoute : String -> Conn -> ( Conn, Cmd Msg )
+updateArticleRoute slug conn =
+    let
+        decodeResult =
+            bodyDecoder Model.updateArticleRequestCodec conn
+    in
+    case decodeResult of
+        Ok { article } ->
+            let
+                response =
+                    singleArticle
             in
             respond ( 201, response |> Codec.encodeToValue Model.singleArticleResponseCodec |> jsonBody ) conn
 
@@ -255,7 +297,15 @@ newArticleRoute conn =
 
 fetchFeedRoute : PaginationQuery -> Conn -> ( Conn, Cmd Msg )
 fetchFeedRoute query conn =
-    respond ( 422, textBody "Working on it" ) conn
+    let
+        response =
+            multipleArticles
+    in
+    respond ( 200, response |> Codec.encodeToValue Model.multipleArticlesResponseCodec |> jsonBody ) conn
+
+
+
+-- Side effects.
 
 
 update : Msg -> Conn -> ( Conn, Cmd Msg )
