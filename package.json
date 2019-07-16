@@ -16,6 +16,7 @@
     "xmlhttprequest": "git://github.com/ktonon/node-XMLHttpRequest.git#bdd9e5c75a3c0f8f4038697234e8612270cec799"
   },
   "devDependencies": {
+    "aws-sdk": "2.493.0",
     "cf-utils": "^1.0.2",
     "del": "^3.0.0",
     "elm": "^0.19.0",
