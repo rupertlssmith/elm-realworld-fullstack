@@ -5,6 +5,7 @@ import Codec
 import Json.Decode as Decode exposing (Decoder)
 import Json.Encode as Encode
 import Model
+import RealWorld.Dynamo
 import Serverless
 import Serverless.Conn exposing (jsonBody, method, request, respond, route, textBody)
 import Serverless.Conn.Request exposing (Method(..), Request, asJson, body)

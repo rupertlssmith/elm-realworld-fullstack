@@ -1,19 +1,19 @@
-port module Dynamo exposing (requestPort, responsePort)
+port module RealWorld.Dynamo exposing (dynamoCreateSet, dynamoDelete, dynamoGet, dynamoPut, dynamoQuery, dynamoScan)
 
 
-port put : () -> Cmd msg
+port dynamoPut : () -> Cmd msg
 
 
-port get : () -> Cmd msg
+port dynamoGet : () -> Cmd msg
 
 
-port scan : () -> Cmd msg
+port dynamoScan : () -> Cmd msg
 
 
-port query : () -> Cmd msg
+port dynamoQuery : () -> Cmd msg
 
 
-port createSet : () -> Cmd msg
+port dynamoCreateSet : () -> Cmd msg
 
 
-port delete : () -> Cmd msg
+port dynamoDelete : () -> Cmd msg

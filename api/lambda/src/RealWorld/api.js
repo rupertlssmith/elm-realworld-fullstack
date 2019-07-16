@@ -21,6 +21,12 @@ function ping() {
   };
 }
 
-module.exports.handler = elmServerless.httpApi({
+const handler = elmServerless.httpApi({
   handler: Elm.RealWorld.API
 });
+
+if (handler.app.ports) {
+  handler.app.ports.dynamoGet.subscribe(function(data) {});
+}
+
+module.exports.handler = handler
