@@ -7,22 +7,6 @@ gulp.task('sleep', function(done) {
   setTimeout(done, 5000);
 });
 
-gulp.task('deploy_core_stack', function() {
-  return gulp.src('./cfs/gulpfile.js')
-    .pipe(chug({
-      tasks: ['deploy_core_stack'],
-      args: ['--env', 'dev', '--profile', 'default', '--region', 'eu-west-2']
-    }))
-});
-
-gulp.task('delete_core_stack', function() {
-  return gulp.src('./cfs/gulpfile.js')
-    .pipe(chug({
-      tasks: ['delete_core_stack'],
-      args: ['--env', 'dev', '--profile', 'default', '--region', 'eu-west-2']
-    }))
-});
-
 gulp.task('deploy_api_stack', function() {
   return gulp.src('./api/lambda/gulpfile.js')
     .pipe(chug({
@@ -52,14 +36,12 @@ gulp.task('delete_api_stack', function() {
 });
 
 gulp.task('deploy', gulp.series(
-  'deploy_core_stack',
   'deploy_api_stack',
   'sleep'
 ));
 
 gulp.task('undeploy', gulp.series(
-  'delete_api_stack',
-  'delete_core_stack'
+  'delete_api_stack'
 ));
 
 gulp.task('offline', gulp.series(
