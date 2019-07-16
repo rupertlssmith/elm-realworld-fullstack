@@ -226,6 +226,7 @@ type Route
     | ArticlesSlugComments String
     | ArticlesSlugCommentsId String String
     | Tags
+    | Ping
 
 
 type alias ArticleQuery =
@@ -272,6 +273,7 @@ routeParser =
         , map ArticlesSlugComments (s "articles" </> Url.Parser.string </> s "comments")
         , map ArticlesSlugCommentsId (s "articles" </> Url.Parser.string </> s "comments" </> Url.Parser.string)
         , map Tags (s "tags")
+        , map Ping (s "ping")
         ]
         |> Url.Parser.parse
 
@@ -336,6 +338,9 @@ router conn =
 
         ( GET, Tags ) ->
             fetchTagsRoute conn
+
+        ( _, Ping ) ->
+            pingRoute conn
 
         ( _, _ ) ->
             respond ( 405, textBody "Method not allowed" ) conn
@@ -555,6 +560,11 @@ fetchTagsRoute conn =
             tagsResponse
     in
     respond ( 200, response |> Codec.encodeToValue Model.tagsResponseCodec |> jsonBody ) conn
+
+
+pingRoute : Conn -> ( Conn, Cmd Msg )
+pingRoute conn =
+    respond ( 200, textBody "pong" ) conn
 
 
 
