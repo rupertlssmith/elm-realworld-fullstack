@@ -208,6 +208,7 @@ main =
         , update = update
         , requestPort = requestPort
         , responsePort = responsePort
+        , interopPorts = Serverless.noPorts
         }
 
 
