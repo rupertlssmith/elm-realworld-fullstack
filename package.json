@@ -1,7 +1,7 @@
 {
-  "name": "numelm-spike",
+  "name": "elm-realworld-fullstack",
   "version": "0.1.0",
-  "description": "NumElm Spike",
+  "description": "Elm RealWorld Full Stack",
   "author": "Rupert Smith",
   "private": true,
   "scripts": {
@@ -10,10 +10,9 @@
     "test:api": "APIURL=http://localhost:3000/api ./tests/run-api-tests.sh"
   },
   "dependencies": {
-    "@the-sett/serverless-elm-bridge": "^1.1.0",
+    "@the-sett/serverless-elm-bridge": "^2.0.0",
     "urlencode": "^1.1.0",
-    "uuid": "^3.1.0",
-    "xmlhttprequest": "git://github.com/ktonon/node-XMLHttpRequest.git#bdd9e5c75a3c0f8f4038697234e8612270cec799"
+    "uuid": "^3.1.0"
   },
   "devDependencies": {
     "aws-sdk": "2.493.0",
