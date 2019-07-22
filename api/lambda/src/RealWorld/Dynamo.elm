@@ -1,19 +1,52 @@
-port module RealWorld.Dynamo exposing (dynamoCreateSet, dynamoDelete, dynamoGet, dynamoPut, dynamoQuery, dynamoScan)
+port module RealWorld.Dynamo exposing
+    ( dynamoCreateSetRequest
+    , dynamoCreateSetResponse
+    , dynamoDeleteRequest
+    , dynamoDeleteResponse
+    , dynamoGetRequest
+    , dynamoGetResponse
+    , dynamoPutRequest
+    , dynamoPutResponse
+    , dynamoQueryRequest
+    , dynamoQueryResponse
+    , dynamoScanRequest
+    , dynamoScanResponse
+    )
+
+import Serverless
 
 
-port dynamoPut : () -> Cmd msg
+port dynamoPutRequest : Serverless.InteropRequestPort () msg
 
 
-port dynamoGet : () -> Cmd msg
+port dynamoPutResponse : Serverless.InteropResponsePort msg
 
 
-port dynamoScan : () -> Cmd msg
+port dynamoGetRequest : Serverless.InteropRequestPort () msg
 
 
-port dynamoQuery : () -> Cmd msg
+port dynamoGetResponse : Serverless.InteropResponsePort msg
 
 
-port dynamoCreateSet : () -> Cmd msg
+port dynamoScanRequest : Serverless.InteropRequestPort () msg
 
 
-port dynamoDelete : () -> Cmd msg
+port dynamoScanResponse : Serverless.InteropResponsePort msg
+
+
+port dynamoQueryRequest : Serverless.InteropRequestPort () msg
+
+
+port dynamoQueryResponse : Serverless.InteropResponsePort msg
+
+
+port dynamoCreateSetRequest : Serverless.InteropRequestPort () msg
+
+
+port dynamoCreateSetResponse : Serverless.InteropResponsePort msg
+
+
+port dynamoDeleteRequest : Serverless.InteropRequestPort () msg
+
+
+port dynamoDeleteResponse : Serverless.InteropResponsePort msg

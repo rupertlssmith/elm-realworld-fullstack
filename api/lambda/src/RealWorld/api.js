@@ -23,10 +23,11 @@ function ping() {
 
 const app = Elm.RealWorld.API.init();
 
-if (app.ports != null && app.ports.dynamoGet != null) {
-  app.ports.dynamoGet.subscribe(args => {
+if (app.ports != null && app.ports.dynamoGetRequest != null) {
+  app.ports.dynamoGetRequest.subscribe(args => {
     const connectionId = args[0];
-    //app.ports.respondRand.send([connectionId, Math.random()]);
+
+    app.ports.dynamoGetResponse.send([connectionId, ""]);
   });
 }
 
