@@ -21,12 +21,16 @@ function ping() {
   };
 }
 
-const handler = elmServerless.httpApi({
-  handler: Elm.RealWorld.API
-});
+const app = Elm.RealWorld.API.init();
 
-if (handler.app.ports) {
-  handler.app.ports.dynamoGet.subscribe(function(data) {});
+if (app.ports != null && app.ports.dynamoGet != null) {
+  app.ports.dynamoGet.subscribe(args => {
+    const connectionId = args[0];
+    //app.ports.respondRand.send([connectionId, Math.random()]);
+  });
 }
 
-module.exports.handler = handler
+// Create the serverless handler with the ports.
+module.exports.handler = elmServerless.httpApi({
+  app
+});
